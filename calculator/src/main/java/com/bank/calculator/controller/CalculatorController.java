@@ -25,7 +25,6 @@ import org.springframework.http.ResponseEntity; //для более гибког
 @RequestMapping("/calculator")
 // класс для обработки запросов
 public class CalculatorController {
-
     private final CalculatorService calculatorService;
 
     //создаем логгер
