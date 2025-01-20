@@ -1,18 +1,22 @@
 package com.bank.calculator.dto;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoanOfferDto {
-    private UUID statementId;
-    private BigDecimal requestedAmount;
-    private BigDecimal totalAmount; // Итоговая сумма с учетом всех условий
-    private Integer term; // Срок кредита
-    private BigDecimal monthlyPayment;
-    private BigDecimal rate; // Процентная ставка
-    private Boolean isInsuranceEnabled; // Страховка включена
-    private Boolean isSalaryClient; // Зарплатный клиент
+     UUID statementId;
+     BigDecimal requestedAmount;
+     BigDecimal totalAmount; // Итоговая сумма с учетом всех условий
+     Integer term; // Срок кредита
+     BigDecimal monthlyPayment;
+     BigDecimal rate; // Процентная ставка
+     Boolean isInsuranceEnabled; // Страховка включена
+     Boolean isSalaryClient; // Зарплатный клиент
 
 }

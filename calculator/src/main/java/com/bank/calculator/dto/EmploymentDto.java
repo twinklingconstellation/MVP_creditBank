@@ -1,13 +1,17 @@
 package com.bank.calculator.dto;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmploymentDto {
-    private EmploymentStatus employmentStatus;
-    private String employerINN;
-    private BigDecimal salary;
-    private Position position;
-    private Integer workExperienceTotal;
-    private Integer workExperienceCurrent;
+     EmploymentStatus employmentStatus;
+     String employerINN;
+     BigDecimal salary;
+     Position position;
+     Integer workExperienceTotal;
+     Integer workExperienceCurrent;
 }

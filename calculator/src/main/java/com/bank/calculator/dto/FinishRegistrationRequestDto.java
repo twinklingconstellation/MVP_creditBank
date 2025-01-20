@@ -1,14 +1,18 @@
 package com.bank.calculator.dto;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDate;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class FinishRegistrationRequestDto {
-    private Gender gender;
-    private MaritalStatus maritalStatus;
-    private Integer dependentAmount; // Количество иждивенцев
-    private LocalDate passportIssueDate; // Дата выдачи паспорта
-    private String passportIssueBranch; // Кем выдан паспорт
-    private EmploymentDto employment; // Информация о занятости
-    private String accountNumber; // Номер счета
+     Gender gender;
+     MaritalStatus maritalStatus;
+     Integer dependentAmount; // Количество иждивенцев
+     LocalDate passportIssueDate; // Дата выдачи паспорта
+     String passportIssueBranch; // Кем выдан паспорт
+     EmploymentDto employment; // Информация о занятости
+     String accountNumber; // Номер счета
 }

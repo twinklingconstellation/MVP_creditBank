@@ -1,19 +1,26 @@
 package com.bank.calculator.dto;
 
 import java.math.BigDecimal;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDate;
-
+@Schema(description = "Информация о пользователе")
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoanStatementRequestDto {
-    private BigDecimal amount; // сумма кредита
-    private Integer term; // срок кредита (месяц)
-    private String firstName;
-    private String lastName;
-    private String middleName;
-    private String email;
-    private LocalDate birthdate;
-    private String passportSeries;
-    private String passportNumber;
+     BigDecimal amount; // сумма кредита
+     Integer term; // срок кредита (месяц)
+     String firstName;
+     String lastName;
+     String middleName;
+     String email;
+     LocalDate birthdate;
+     String passportSeries;
+     String passportNumber;
 
-    }
+
+}

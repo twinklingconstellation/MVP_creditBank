@@ -2,35 +2,31 @@ package com.bank.calculator.service;
 
 import com.bank.calculator.dto.*;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service; //фннотация спринга, которая говорит, что этот класс является сервисом
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
 
 import static com.bank.calculator.dto.Gender.*;
-import static com.bank.calculator.dto.MaritalStatus.DIVORCED;
-import static com.bank.calculator.dto.MaritalStatus.MARRIED;
-import static com.bank.calculator.dto.Position.MID_MANAGER;
-import static com.bank.calculator.dto.Position.TOP_MANAGER;
+import static com.bank.calculator.dto.Position.*;
+import static com.bank.calculator.dto.MaritalStatus.*;
 
 @Slf4j
 @Service //отмечает класс как сервис
 public class CalculatorService {
-    // для логгирования создаем класс
-    private static final Logger logger = LoggerFactory.getLogger(CalculatorService.class);
-   // log.info("ЛОГИ");
+
     //базовая процентная ставка
-    private static final BigDecimal BASE_RATE = new BigDecimal("15.0");
-   // log.info("ЛОГ ДЛЯ {}", BASE_RATE);
+    private static final BigDecimal BASE_RATE = new BigDecimal("15");
+    private static final String regularExpression = "[a-zA-Z]{2,30}";
+    private static final String regularExpresForEmail = "^[a-z0-9A-Z_!#$%&'*+/=?`{|}~^.-]+@[a-z0-9A-Z.-]+$";
 
     public List<LoanOfferDto> generateLoanOffers(LoanStatementRequestDto request) {
-        logger.debug("Generating loan offers: {}", request);
+        log.debug("Generating loan offers: {}", request);
 
         preScoringValidation(request);
-        logger.debug("Scoring completed successfully for request: {}", request);
+        log.debug("Scoring completed successfully for request: {}", request);
 
         // Список для хранения кредитных предложений
         List<LoanOfferDto> offers = new ArrayList<>();
@@ -46,16 +42,16 @@ public class CalculatorService {
 
                 // Базовая ставка
                 BigDecimal rate = BASE_RATE;
-                logger.info("Generating new rate depending on the conditions, where start rate: {}", rate);
-                if (insurance) rate = rate.subtract(new BigDecimal("3.0"));
-                if (salaryClient) rate = rate.subtract(new BigDecimal("1.0"));
+                log.info("Generating new rate depending on the conditions, where start rate: {}", rate);
+                if (insurance) rate = rate.subtract(new BigDecimal("3"));
+                if (salaryClient) rate = rate.subtract(new BigDecimal("1"));
                 offer.setRate(rate);
-                logger.info("New rate depending on the salary client or having insurance: {}", rate);
+                log.info("New rate depending on the salary client or having insurance: {}", rate);
 
                 // Общая сумма кредита и ежемесячный платеж
                 BigDecimal totalAmount = request.getAmount();
                 BigDecimal monthlyPayment = totalAmount.divide(
-                        BigDecimal.valueOf(request.getTerm()), BigDecimal.ROUND_HALF_UP);
+                        BigDecimal.valueOf(request.getTerm()), RoundingMode.UP);
 
                 offer.setTotalAmount(totalAmount);
                 offer.setMonthlyPayment(monthlyPayment);
@@ -67,17 +63,17 @@ public class CalculatorService {
         }
         // Сортировка предложений по ставке (от меньшей к большей)
         offers.sort(Comparator.comparing(LoanOfferDto::getRate));
-        logger.info("Generation loan offers completed successfully for request: {}", offers.size());
+        log.info("Generation loan offers completed successfully for request: {}", offers.size());
         return offers;
 
     }
 
     public CreditDto calculateCreditDetails(ScoringDataDto request) {
 
-        logger.debug("Calculating credit details: {}", request);
+        log.debug("Calculating credit details: {}", request);
 
         BigDecimal rate = performScoring(request);
-        logger.info("Calculating credit rate  according to the scoring: {}", rate);
+        log.info("Calculating credit rate  according to the scoring: {}", rate);
 
         try {
             CreditDto credit = new CreditDto();
@@ -98,23 +94,22 @@ public class CalculatorService {
 
             return credit;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Calculating credit was failed: {}",e.getMessage());
         }
         return null;
     }
 
-
     private BigDecimal calculateMonthlyPayment(BigDecimal amount, int term, BigDecimal rate) {
-        logger.info("Calculating monthly payment for amount: {}", amount, term);
-        BigDecimal monthlyRate = rate.divide(BigDecimal.valueOf(100), 4, BigDecimal.ROUND_HALF_UP);
+        log.info("Calculating monthly payment for amount: amount - {}, term - {}", amount, term);
+        BigDecimal monthlyRate = rate.divide(BigDecimal.valueOf(100), 4, RoundingMode.UP);
         return amount.multiply(monthlyRate).divide(
                 BigDecimal.ONE.subtract(BigDecimal.ONE.divide(
-                        BigDecimal.ONE.add(monthlyRate).pow(term), 4, BigDecimal.ROUND_HALF_UP)), 2, BigDecimal.ROUND_HALF_UP);
+                        BigDecimal.ONE.add(monthlyRate).pow(term), 4, RoundingMode.UP)), 2, RoundingMode.UP);
     }
 
     private List<PaymentScheduleElementDto> generatePaymentSchedule(BigDecimal amount, BigDecimal rate, int term) {
 
-        logger.debug("Generating payment schedule: {}", amount);
+        log.debug("Generating payment schedule: {}", amount);
 
         List<PaymentScheduleElementDto> schedule = new ArrayList<>();
         BigDecimal remainingDebt = amount;
@@ -137,11 +132,11 @@ public class CalculatorService {
     //можно было в отдельные классы вынести
     private void preScoringValidation(LoanStatementRequestDto request) {
 
-        logger.debug("Starting pre-scoring validation");
+        log.debug("Starting pre-scoring validation");
 
-        if (!request.getFirstName().matches("[a-zA-Z]{2,30}")
-                || !request.getLastName().matches("[a-zA-Z]{2,30}")
-                || (request.getMiddleName() != null && !request.getMiddleName().matches("[a-zA-Z]{2,30}"))) {
+        if (!request.getFirstName().matches(regularExpression)
+                || !request.getLastName().matches(regularExpression)
+                || (request.getMiddleName() != null && !request.getMiddleName().matches(regularExpression))) {
             throw new IllegalArgumentException("Invalid name fields");
         }
         if (request.getAmount().compareTo(new BigDecimal("20000")) < 0) {
@@ -153,7 +148,7 @@ public class CalculatorService {
         if (request.getBirthdate().isAfter(LocalDate.now().minusYears(18))) {
             throw new IllegalArgumentException("User must be at least 18 years old");
         }
-        if (!request.getEmail().matches("^[a-z0-9A-Z_!#$%&'*+/=?`{|}~^.-]+@[a-z0-9A-Z.-]+$")) {
+        if (!request.getEmail().matches(regularExpresForEmail)) {
             throw new IllegalArgumentException("Invalid email format");
         }
         if (!request.getPassportSeries().matches("\\d{4}") || !request.getPassportNumber().matches("\\d{6}")) {
@@ -163,7 +158,7 @@ public class CalculatorService {
 
     private BigDecimal performScoring(ScoringDataDto request) {
 
-        logger.debug("Starting scoring for request");
+        log.debug("Starting scoring for request");
         BigDecimal rate = BASE_RATE;
 
         // Возраст
@@ -173,18 +168,18 @@ public class CalculatorService {
         }
 
         // Пол
-        if (FEMALE.equals(request.getGender().name()) && age >= 32 && age <= 60) {
+        if (FEMALE.equals(request.getGender()) && age >= 32 && age <= 60) {
             rate = rate.subtract(new BigDecimal("3"));
-        } else if (MALE.equals(request.getGender().name()) && age >= 30 && age <= 55) {
+        } else if (MALE.equals(request.getGender()) && age >= 30 && age <= 55) {
             rate = rate.subtract(new BigDecimal("3"));
-        } else if (UNKNOWN.equals(request.getGender().name())) {
+        } else if (UNKNOWN.equals(request.getGender())) {
             rate = rate.add(new BigDecimal("7"));
         }
 
         // Семейное положение
-        if (MARRIED.equals(request.getMaritalStatus().name())) {
+        if (MARRIED.equals(request.getMaritalStatus())) {
             rate = rate.subtract(new BigDecimal("3"));
-        } else if (DIVORCED.equals(request.getMaritalStatus().name())) {
+        } else if (DIVORCED.equals(request.getMaritalStatus())) {
             rate = rate.add(new BigDecimal("1"));
         }
 
@@ -198,6 +193,8 @@ public class CalculatorService {
             case BUSINESS_OWNER:
                 rate = rate.add(new BigDecimal("1"));
                 break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + request.getEmployment().getEmploymentStatus());
         }
 
         // Позиция на работе

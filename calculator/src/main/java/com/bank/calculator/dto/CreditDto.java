@@ -1,17 +1,22 @@
 package com.bank.calculator.dto;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
+
 import java.math.BigDecimal;
 import java.util.List;
-
+@Schema(description = "Информация о кредите")
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreditDto {
-    private BigDecimal amount; // Сумма кредита
-    private Integer term; // Срок кредита
-    private BigDecimal monthlyPayment;
-    private BigDecimal rate;
-    private BigDecimal psk; // Полная стоимость кредита
-    private Boolean isInsuranceEnabled;
-    private Boolean isSalaryClient; // Зарплатный клиент
-    private List<PaymentScheduleElementDto> paymentSchedule;
+     BigDecimal amount; // Сумма кредита
+     Integer term; // Срок кредита
+     BigDecimal monthlyPayment;
+     BigDecimal rate;
+     BigDecimal psk; // Полная стоимость кредита
+     Boolean isInsuranceEnabled;
+     Boolean isSalaryClient; // Зарплатный клиент
+     List<PaymentScheduleElementDto> paymentSchedule;
 
 }

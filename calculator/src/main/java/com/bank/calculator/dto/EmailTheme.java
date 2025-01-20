@@ -1,11 +1,14 @@
 package com.bank.calculator.dto;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 
 @Data
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EmailTheme {
-    private String address; // Адрес электронной почты
-    private MailTheme theme; // Тема письма
-    private Long statementId; // ID заявки
-    private String text; // Текст письма
+     String address; // Адрес электронной почты
+     MailTheme theme; // Тема письма
+     Long statementId; // ID заявки
+     String text; // Текст письма
 
 }
